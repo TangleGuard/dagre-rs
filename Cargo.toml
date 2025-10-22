@@ -2,7 +2,7 @@
 name = "dagrers"
 version = "0.1.0"
 edition = "2024"
-license = "PolyForm Perimeter License 1.0.0"
+license = "PolyForm Noncommercial License 1.0.0"
 
 [dependencies]
 petgraph = "0.8.3"
