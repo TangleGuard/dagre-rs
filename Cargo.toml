@@ -8,7 +8,7 @@ description = "Hierarchical Layout Calculation for directed graphs"
 authors = ["Jan Arends <kontakt@jaads.de>"]
 repository = "https://github.com/TangleGuard/dagre-rs"
 keywords = ["graph", "layout", "hierarchical"]
-categories = ["visualization", "graphics", "mathematics", "rendering", "science", "algorithms" ]
+categories = ["visualization", "graphics", "mathematics", "rendering", "algorithms"]
 homepage = "https://github.com/TangleGuard/dagre-rs"
 
 [dependencies]
