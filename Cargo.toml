@@ -3,6 +3,14 @@ name = "dagrers"
 version = "0.1.0"
 edition = "2024"
 license = "PolyForm Noncommercial License 1.0.0"
+license-file = "LICENSE.txt"
+readme = "README.md"
+description = "Hierarchical Layout Calculation for directed graphs"
+authors = ["Jan Arends <kontakt@jaads.de>"]
+repository = "https://github.com/TangleGuard/dagre-rs"
+keywords = ["graph", "layout", "hierarchical"]
+categories = ["graphics", ""]
+categories = ["visualization", "graphics", "mathematics", "rendering", "science", "algorithms" ]
 
 [dependencies]
 petgraph = "0.8.3"
