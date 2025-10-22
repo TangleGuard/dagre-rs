@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="150" height="500" xmlns="http://www.w3.org/2000/svg">
+<style>
+.node { fill: #e1f5fe; stroke: #0277bd; stroke-width: 2; }
+.node-text { font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; dominant-baseline: middle; }
+.edge { stroke: #424242; stroke-width: 1.5; marker-end: url(#arrowhead); }
+.title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; text-anchor: middle; }
+.layer-line { stroke: #e0e0e0; stroke-width: 1; stroke-dasharray: 5,5; }
+</style>
+<defs>
+<marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+<polygon points="0 0, 10 3.5, 0 7" fill="#424242"/>
+</marker>
+</defs>
+<text x="75" y="25" class="title">Simple Chain (Top-to-Bottom)</text><line x1="50" y1="50" x2="100" y2="50" class="layer-line" /><text x="15" y="45" class="node-text" style="fill: #757575; font-size: 12px;">Layer 0</text><line x1="50" y1="150" x2="100" y2="150" class="layer-line" /><text x="15" y="145" class="node-text" style="fill: #757575; font-size: 12px;">Layer 1</text><line x1="50" y1="250" x2="100" y2="250" class="layer-line" /><text x="15" y="245" class="node-text" style="fill: #757575; font-size: 12px;">Layer 2</text><line x1="50" y1="350" x2="100" y2="350" class="layer-line" /><text x="15" y="345" class="node-text" style="fill: #757575; font-size: 12px;">Layer 3</text><line x1="50" y1="50" x2="50" y2="150" class="edge" /><line x1="50" y1="150" x2="50" y2="250" class="edge" /><line x1="50" y1="250" x2="50" y2="350" class="edge" /><circle cx="50" cy="250" r="20" class="node" /><text x="50" y="250" class="node-text">C</text><circle cx="50" cy="50" r="20" class="node" /><text x="50" y="50" class="node-text">A</text><circle cx="50" cy="350" r="20" class="node" /><text x="50" y="350" class="node-text">D</text><circle cx="50" cy="150" r="20" class="node" /><text x="50" y="150" class="node-text">B</text><text x="10" y="490" class="node-text" style="fill: #757575; font-size: 12px;">Nodes: 4 | Layers: 4 | Size: 50×400</text></svg>

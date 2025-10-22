@@ -6,3 +6,22 @@ license = "PolyForm Noncommercial License 1.0.0"
 
 [dependencies]
 petgraph = "0.8.3"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[example]]
+name = "visualize_layout"
+path = "examples/visualize_layout.rs"
+
+[[example]]
+name = "test_comprehensive"
+path = "examples/test_comprehensive.rs"
+
+[[example]]
+name = "performance_test"
+path = "examples/performance_test.rs"
+
+[[bench]]
+name = "layout_performance"
+harness = false

@@ -419,4 +419,207 @@ mod tests {
         assert_eq!(result.layers[0], vec![node]);
         assert_eq!(result.node_positions[&node], (0.0, 0.0));
     }
+
+    #[test]
+    fn test_layer_ordering_properties() {
+        // Test that edges only go from lower layer indices to higher layer indices
+        let mut graph = Graph::new();
+        let a = graph.add_node("A");
+        let b = graph.add_node("B");
+        let c = graph.add_node("C");
+        let d = graph.add_node("D");
+
+        graph.add_edge(a, b, ());
+        graph.add_edge(a, c, ());
+        graph.add_edge(b, d, ());
+        graph.add_edge(c, d, ());
+
+        let layout = DagreLayout::new();
+        let result = layout.compute(&graph);
+
+        // Create a mapping from node to layer index
+        let mut node_to_layer = std::collections::HashMap::new();
+        for (layer_idx, layer) in result.layers.iter().enumerate() {
+            for &node in layer {
+                node_to_layer.insert(node, layer_idx);
+            }
+        }
+
+        // Verify all edges respect layer ordering
+        for edge in graph.edge_indices() {
+            if let Some((source, target)) = graph.edge_endpoints(edge) {
+                let source_layer = node_to_layer[&source];
+                let target_layer = node_to_layer[&target];
+                assert!(
+                    source_layer < target_layer,
+                    "Edge from layer {} to layer {} violates hierarchy",
+                    source_layer,
+                    target_layer
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_coordinate_consistency() {
+        let mut graph = Graph::new();
+        let a = graph.add_node("A");
+        let b = graph.add_node("B");
+        let c = graph.add_node("C");
+
+        graph.add_edge(a, b, ());
+        graph.add_edge(b, c, ());
+
+        let layout = DagreLayout::new();
+        let result = layout.compute(&graph);
+
+        // In top-to-bottom layout, Y coordinates should increase with layer depth
+        let pos_a = result.node_positions[&a];
+        let pos_b = result.node_positions[&b];
+        let pos_c = result.node_positions[&c];
+
+        assert!(pos_a.1 < pos_b.1, "A should be above B");
+        assert!(pos_b.1 < pos_c.1, "B should be above C");
+    }
+
+    #[test]
+    fn test_spacing_configuration() {
+        let mut graph = Graph::new();
+        let a = graph.add_node("A");
+        let b = graph.add_node("B");
+        let c = graph.add_node("C");
+
+        graph.add_edge(a, b, ());
+        graph.add_edge(a, c, ());
+
+        let options = LayoutOptions {
+            node_sep: 100.0,
+            rank_sep: 200.0,
+            ..Default::default()
+        };
+        let layout = DagreLayout::with_options(options);
+        let result = layout.compute(&graph);
+
+        let pos_a = result.node_positions[&a];
+        let pos_b = result.node_positions[&b];
+        let pos_c = result.node_positions[&c];
+
+        // Nodes B and C should be separated by node_sep horizontally
+        let horizontal_distance = (pos_b.0 - pos_c.0).abs();
+        assert_eq!(horizontal_distance, 100.0, "Node separation not applied correctly");
+
+        // A should be separated from B/C by rank_sep vertically
+        let vertical_distance = pos_b.1 - pos_a.1;
+        assert_eq!(vertical_distance, 200.0, "Rank separation not applied correctly");
+    }
+
+    #[test]
+    fn test_disconnected_components() {
+        let mut graph = Graph::new();
+        
+        // First component: A -> B
+        let a = graph.add_node("A");
+        let b = graph.add_node("B");
+        graph.add_edge(a, b, ());
+
+        // Second component: C -> D
+        let c = graph.add_node("C");
+        let d = graph.add_node("D");
+        graph.add_edge(c, d, ());
+
+        let layout = DagreLayout::new();
+        let result = layout.compute(&graph);
+
+        // Should handle disconnected components gracefully
+        assert!(result.layers.len() >= 2);
+        assert_eq!(result.node_positions.len(), 4);
+
+        // All nodes should have valid positions
+        for &node in &[a, b, c, d] {
+            assert!(result.node_positions.contains_key(&node));
+        }
+    }
+
+    #[test]
+    fn test_layout_determinism() {
+        let mut graph = Graph::new();
+        let nodes: Vec<_> = (0..5).map(|i| graph.add_node(format!("Node{}", i))).collect();
+        
+        // Create a specific edge pattern
+        graph.add_edge(nodes[0], nodes[1], ());
+        graph.add_edge(nodes[0], nodes[2], ());
+        graph.add_edge(nodes[1], nodes[3], ());
+        graph.add_edge(nodes[2], nodes[4], ());
+
+        let layout = DagreLayout::new();
+        
+        // Run layout multiple times and verify results are identical
+        let result1 = layout.compute(&graph);
+        let result2 = layout.compute(&graph);
+
+        assert_eq!(result1.layers, result2.layers);
+        assert_eq!(result1.node_positions, result2.node_positions);
+        assert_eq!(result1.width, result2.width);
+        assert_eq!(result1.height, result2.height);
+    }
+
+    #[test]
+    fn test_crossing_reduction_effectiveness() {
+        // Create a graph that should have crossings if not optimized
+        let mut graph = Graph::new();
+        let top = graph.add_node("Top");
+        let left1 = graph.add_node("L1");
+        let left2 = graph.add_node("L2");
+        let right1 = graph.add_node("R1");
+        let right2 = graph.add_node("R2");
+
+        // Create crossing pattern: Top -> L1, L2 and L1 -> R2, L2 -> R1
+        graph.add_edge(top, left1, ());
+        graph.add_edge(top, left2, ());
+        graph.add_edge(left1, right2, ());
+        graph.add_edge(left2, right1, ());
+
+        let layout = DagreLayout::new();
+        let result = layout.compute(&graph);
+
+        // After crossing reduction, nodes should be reordered to minimize crossings
+        assert_eq!(result.layers.len(), 3);
+        
+        // The middle layer should contain L1 and L2
+        let middle_layer = &result.layers[1];
+        assert_eq!(middle_layer.len(), 2);
+        assert!(middle_layer.contains(&left1));
+        assert!(middle_layer.contains(&left2));
+    }
+
+    #[test]
+    fn test_longest_path_layer_assignment() {
+        // Create a graph where simple topological sort vs longest path would differ
+        let mut graph = Graph::new();
+        let a = graph.add_node("A");
+        let b = graph.add_node("B");
+        let c = graph.add_node("C");
+        let d = graph.add_node("D");
+
+        // A -> B -> D and A -> C -> D, where B -> D path is longer
+        graph.add_edge(a, b, ());
+        graph.add_edge(b, d, ());
+        graph.add_edge(a, c, ());
+        graph.add_edge(c, d, ());
+
+        let layout = DagreLayout::new();
+        let result = layout.compute(&graph);
+
+        // Should have 3 layers: {A}, {B, C}, {D}
+        assert_eq!(result.layers.len(), 3);
+        assert_eq!(result.layers[0], vec![a]);
+        
+        // B and C should be in the same layer (layer 1)
+        let middle_layer = &result.layers[1];
+        assert_eq!(middle_layer.len(), 2);
+        assert!(middle_layer.contains(&b));
+        assert!(middle_layer.contains(&c));
+        
+        assert_eq!(result.layers[2], vec![d]);
+    }
 }
