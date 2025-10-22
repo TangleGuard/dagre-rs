@@ -11,6 +11,7 @@ repository = "https://github.com/TangleGuard/dagre-rs"
 keywords = ["graph", "layout", "hierarchical"]
 categories = ["graphics", ""]
 categories = ["visualization", "graphics", "mathematics", "rendering", "science", "algorithms" ]
+homepage = "https://github.com/TangleGuard/dagre-rs"
 
 [dependencies]
 petgraph = "0.8.3"
