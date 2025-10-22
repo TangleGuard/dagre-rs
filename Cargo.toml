@@ -2,7 +2,6 @@
 name = "dagrers"
 version = "0.1.0"
 edition = "2024"
-license = "PolyForm Noncommercial License 1.0.0"
 license-file = "LICENSE.md"
 readme = "README.md"
 description = "Hierarchical Layout Calculation for directed graphs"
